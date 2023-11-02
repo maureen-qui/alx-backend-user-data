@@ -6,6 +6,16 @@ import logging
 import mysql.connector
 import os
 
+def filter_datum(fields, redaction, message, separator):
+    for field in fields:
+        message = re.sub(f"{field}=.*?{separator}", f"{field}={redaction}{separator}", message)
+    return message
+
+fields = ["password", "date_of_birth"]
+messages = ["name=egg;email=eggmin@eggsample.com;password=eggcellent;date_of_birth=12/12/1986;", "name=bob;email=bob@dylan.com;password=bobbycool;date_of_birth=03/04/1993;"]
+
+for message in messages:
+    print(filter_datum(fields, 'xxx', message, ';'))
 
 class RedactingFormatter(logging.Formatter):
     """ Redacting Formatter class
