@@ -4,6 +4,24 @@ from api.v1.auth.auth import Auth
 import base64
 from models.user import User
 from typing import TypeVar
+from typing import List
+
+class Auth:
+    def require_auth(self, path: str, excluded_paths: List[str]) -> bool:
+        # Return True if path is None or excluded_paths is None/empty
+        if path is None or excluded_paths is None or not excluded_paths:
+            return True
+
+        # Check if the path matches any excluded path with wildcards
+        for excluded_path in excluded_paths:
+            if excluded_path.endswith('*') and path.startswith(excluded_path[:-1]):
+                return False
+
+            # Check if the path is an exact match (slash-tolerant)
+            if path.rstrip('/') == excluded_path.rstrip('/'):
+                return False
+
+        return True
 
 class BasicAuth(Auth):
     def extract_base64_authorization_header(self, authorization_header: str) -> str:
@@ -35,17 +53,22 @@ class BasicAuth(Auth):
 
         except Exception:
             return None  # Invalid Base64
+    
     def extract_user_credentials(self, decoded_base64_authorization_header: str) -> (str, str):
         # Return None, None for invalid or missing decoded authorization headers
         if (
             decoded_base64_authorization_header is None
             or not isinstance(decoded_base64_authorization_header, str)
-            or ':' not in decoded_base64_authorization_header
         ):
             return None, None
 
-        # Split the decoded string into email and password using :
-        email, password = decoded_base64_authorization_header.split(':', 1)
+        # Split the decoded string into email and password using the last :
+        last_colon_index = decoded_base64_authorization_header.rfind(':')
+        if last_colon_index == -1:
+            return None, None
+
+        email = decoded_base64_authorization_header[:last_colon_index]
+        password = decoded_base64_authorization_header[last_colon_index + 1:]
         return email, password
 
     def user_object_from_credentials(self, user_email: str, user_pwd: str) -> TypeVar('User'):
