@@ -5,6 +5,7 @@ Route module for the API
 from os import getenv
 from api.v1.views.app_views import app_views
 from api.v1.auth.session_auth import SessionAuth  # Import SessionAuth
+from api.v1.auth.session_exp_auth import SessionExpAuth
 from flask import Flask, jsonify, abort, request
 from flask_cors import CORS
 
