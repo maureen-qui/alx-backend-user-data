@@ -5,20 +5,6 @@ from api.v1.views import app_views
 from flask import abort, jsonify, request
 from models.user import User
 
-@app.route('/api/v1/users/<user_id>', methods=['GET'])
-def get_user(user_id):
-    """ Retrieves a User """
-    if user_id == 'me':
-        if request.current_user is None:
-            abort(404)
-        return jsonify(request.current_user.to_dict()), 200
-
-    user = User.get(user_id)
-    if user:
-        return jsonify(user.to_dict()), 200
-    else:
-        abort(404)
-
 
 @app_views.route('/users', methods=['GET'], strict_slashes=False)
 def view_all_users() -> str:

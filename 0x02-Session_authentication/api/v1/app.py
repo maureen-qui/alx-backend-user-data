@@ -4,10 +4,9 @@ Route module for the API
 """
 from os import getenv
 from api.v1.views.app_views import app_views
+from api.v1.auth.session_auth import SessionAuth  # Import SessionAuth
 from flask import Flask, jsonify, abort, request
-from flask_cors import (CORS, cross_origin)
-import os
-
+from flask_cors import CORS
 
 app = Flask(__name__)
 app.register_blueprint(app_views)
@@ -26,7 +25,6 @@ elif getenv("AUTH_TYPE") == "session_auth":
     from api.v1.auth.session_auth import SessionAuth
     auth = SessionAuth()
 
-
 @app.before_request
 def beforeRequest() -> None:
     """ Method to filter every request.
@@ -44,13 +42,11 @@ def beforeRequest() -> None:
                 abort(403)
             request.current_user = auth.current_user(request)
 
-
 @app.errorhandler(404)
 def not_found(error) -> str:
     """ Not found handler.
     """
     return jsonify({"error": "Not found"}), 404
-
 
 @app.errorhandler(401)
 def RequestUnauthorized(error) -> str:
@@ -58,13 +54,11 @@ def RequestUnauthorized(error) -> str:
     """
     return jsonify({"error": "Unauthorized"}), 401
 
-
 @app.errorhandler(403)
 def RequestForbidden(error) -> str:
     """ Request Forbidden handler.
     """
     return jsonify({"error": "Forbidden"}), 403
-
 
 if __name__ == "__main__":
     host = getenv("API_HOST", "0.0.0.0")
