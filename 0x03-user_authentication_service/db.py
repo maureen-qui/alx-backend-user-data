@@ -5,11 +5,10 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.orm.session import Session
 from sqlalchemy.orm.exc import NoResultFound, InvalidRequestError
-
 from user import Base, User
 
 class DB:
-    """DB class
+    """ Class to manage the Database.
     """
 
     def __init__(self) -> None:
@@ -86,5 +85,6 @@ class DB:
                 setattr(user_to_update, key, value)
             else:
                 raise ValueError(f"Invalid argument: {key}")
-
-        self._session.commit()
+            self._session.add(userFound)
+            self._session.commit()
+        return None
